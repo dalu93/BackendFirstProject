@@ -18,6 +18,7 @@ module.exports = {
 
             // error
             done(err, null)
+            return
           } else {
 
             pg.connect(process.env.DATABASE_URL, function(err, client) {
@@ -69,32 +70,46 @@ module.exports = {
             })
             .on('end', function(result) {
 
+              console.log(password);
+              console.log(result.rows[0].password);
               bcrypt.compare(password, result.rows[0].password, function(err, res) {
 
                 if (err) {
 
-                  done("Invalid password", null)
+                  done("Error", null)
+                  return
 
                 } else {
 
-                  done(null, jwt.encode({id:result.rows[0].id}, config.Secret))
+                  if (res) {
+                    done(null, jwt.encode({id:result.rows[0].id}, config.Secret))
+                    return
+
+                  } else {
+
+                    done("Invalid password", null)
+                    return
+                  }
                 }
               });
             })
             .on('error', function(error) {
               done(error, null)
+              return
             })
           });
 
       } else {
 
         done("Not valid email", null)
+        return
 
       }
 
     } else {
 
       done("Not valid password", null)
+      return
     }
   }
 }
