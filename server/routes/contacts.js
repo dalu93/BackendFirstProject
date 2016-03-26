@@ -19,7 +19,7 @@ router.get('/', function(req, res, next) {
 
       if (err) {
 
-        res.status(500).send(err)
+        res.status(500).send({error : err})
 
       } else {
 
@@ -45,7 +45,7 @@ router.post('/', function(req, res, next) {
 
       if (err) {
 
-        res.status(500).send(err)
+        res.status(500).send({ error: err})
 
       } else {
 
@@ -54,7 +54,7 @@ router.post('/', function(req, res, next) {
     })
   } else {
 
-    res.status(401).send("Invalid access token")
+    res.status(401).send({error : "Invalid access token"})
   }
 });
 

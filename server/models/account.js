@@ -2,6 +2,7 @@ var pg = require('pg')
 var bcrypt = require('bcrypt')
 var config = require('../config')
 var jwt = require('jwt-simple')
+var serverError = require('../models/error')
 
 module.exports = {
 
@@ -36,6 +37,12 @@ module.exports = {
                   done(null, result.rows)
                 })
                 .on('error', function(error) {
+                  if (error.code == "23505") {
+
+                    done(serverError.EmailExists, null)
+                    return
+                  }
+
                   done(error, null)
                 })
             });
@@ -43,11 +50,11 @@ module.exports = {
         })
       } else {
 
-        done("Not valid email", null)
+        done(serverError.InvalidEmailPassword, null)
       }
     } else {
 
-      done("Not valid password", null)
+      done(serverError.InvalidEmailPassword, null)
     }
   },
 
@@ -70,8 +77,6 @@ module.exports = {
             })
             .on('end', function(result) {
 
-              console.log(password);
-              console.log(result.rows[0].password);
               bcrypt.compare(password, result.rows[0].password, function(err, res) {
 
                 if (err) {
@@ -87,7 +92,7 @@ module.exports = {
 
                   } else {
 
-                    done("Invalid password", null)
+                    done(serverError.InvalidEmailPassword, null)
                     return
                   }
                 }
@@ -101,14 +106,14 @@ module.exports = {
 
       } else {
 
-        done("Not valid email", null)
+        done(serverError.InvalidEmailPassword, null)
         return
 
       }
 
     } else {
 
-      done("Not valid password", null)
+      done(serverError.InvalidEmailPassword, null)
       return
     }
   }
